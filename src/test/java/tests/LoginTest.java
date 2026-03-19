@@ -1,48 +1,40 @@
-package base;
+package tests;
 
-import java.time.Duration;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import base.BaseTest;
+import pages.LoginPage;
+import utils.ExtentReportManager;
+import utils.Log;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+public class LoginTest extends BaseTest {
 
-public class BaseTest {
+    @Test
+    public void testValidLogin() {
 
-    protected WebDriver driver;
+        Log.info("Starting login test...");
+        test = ExtentReportManager.createTest("Login Test");
 
-    @BeforeMethod
-    public void setUp() {
+        test.info("Navigating to URL");
+        LoginPage loginPage = new LoginPage(driver);
 
-        // Setup ChromeDriver automatically
-        WebDriverManager.chromedriver().setup();
+        Log.info("Adding credentials");
+        test.info("Adding Credentials");
 
-        // Chrome options for Jenkins (headless execution)
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");        // Run without UI
-        options.addArguments("--no-sandbox");          // Required for Jenkins/Linux
-        options.addArguments("--disable-dev-shm-usage"); // Fix memory issues
-        options.addArguments("--disable-gpu");
+        loginPage.enterUsername("admin@yourstore.com");
+        loginPage.enterPassword("admin");
 
-        // Initialize driver
-        driver = new ChromeDriver(options);
+        test.info("Clicking on Login button");
+        loginPage.clickLogin();
 
-        // Common settings
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().window().maximize();
+        System.out.println("Title of the page is : " + driver.getTitle());
 
-        // Open your application URL
-        driver.get("https://admin-demo.nopcommerce.com/login");
-    }
+        Log.info("Verifying page title");
+        test.info("Verifying page title");
 
-    @AfterMethod
-    public void tearDown() {
+        Assert.assertEquals(driver.getTitle(), "Just a moment...");
 
-        if (driver != null) {
-            driver.quit();
-        }
+        test.pass("Login Successful");
     }
 }
